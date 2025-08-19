@@ -21,7 +21,174 @@ An advanced MCP (Model Context Protocol) server that enables Claude to query mul
 - Claude Desktop app
 - API keys for the LLM providers you want to use
 
-## 🚀 Installation
+## ⚡ Quick Start (5분 설정)
+
+### 1단계: Claude Desktop 설정 파일 열기
+
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json` 파일을 열거나 생성하세요
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json` 파일을 열거나 생성하세요
+
+### 2단계: 설정 추가
+
+파일에 다음 내용을 복사 붙여넣기하세요:
+
+```json
+{
+  "mcpServers": {
+    "llm-provider": {
+      "command": "npx",
+      "args": ["@wnsgur1595/llm-provider-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "여기에-당신의-openai-키-입력",
+        "ANTHROPIC_API_KEY": "여기에-당신의-anthropic-키-입력"
+      }
+    }
+  }
+}
+```
+
+### 3단계: API 키 입력
+
+- OpenAI API 키를 https://platform.openai.com/api-keys 에서 발급받아 입력하세요
+- Anthropic API 키를 https://console.anthropic.com/keys 에서 발급받아 입력하세요
+- 필요하지 않은 키는 줄을 삭제하세요
+
+### 4단계: Claude Desktop 재시작
+
+Claude Desktop을 완전히 종료하고 다시 시작하세요.
+
+### 5단계: 사용 시작!
+
+Claude에서 다음과 같이 말해보세요:
+- "GPT에게 파이썬 학습 방법을 물어봐"
+- "모든 LLM에게 이 코드를 개선하는 방법을 물어봐"
+
+### 🔧 문제 해결
+
+Tools가 보이지 않나요? 터미널에서 다음 명령어로 설정을 확인하세요:
+
+```bash
+npx @wnsgur1595/llm-provider-mcp --env-check
+```
+
+이 명령어는 API 키 설정 상태를 보여줍니다.
+
+---
+
+## 🔌 다른 MCP 클라이언트와 사용하기
+
+이 MCP 서버는 Claude Desktop 외에도 다양한 MCP 호환 클라이언트에서 사용할 수 있습니다.
+
+### 1. MCP Inspector (개발/테스트용)
+
+웹 브라우저에서 MCP 서버를 직접 테스트하고 디버깅할 수 있습니다:
+
+```bash
+# API 키를 환경변수로 설정
+export OPENAI_API_KEY="your-openai-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
+
+# MCP Inspector 실행
+npx @modelcontextprotocol/inspector npx @wnsgur1595/llm-provider-mcp
+```
+
+브라우저에서 http://localhost:5173 으로 접속하여 tools를 직접 테스트할 수 있습니다.
+
+### 2. VS Code Extensions
+
+MCP를 지원하는 VS Code 확장프로그램에서 사용:
+
+```json
+// VS Code settings.json
+{
+  "mcp.servers": {
+    "llm-provider": {
+      "command": "npx",
+      "args": ["@wnsgur1595/llm-provider-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "your-openai-key"
+      }
+    }
+  }
+}
+```
+
+### 3. 커스텀 MCP 클라이언트
+
+MCP SDK를 사용해서 직접 개발한 애플리케이션에서 연결:
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: ["@wnsgur1595/llm-provider-mcp"],
+  env: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY
+  }
+});
+
+const client = new Client({
+  name: "my-app",
+  version: "1.0.0"
+}, {
+  capabilities: {}
+});
+
+await client.connect(transport);
+```
+
+### 4. 직접 CLI 실행
+
+터미널에서 서버를 직접 실행하여 stdio 모드로 통신:
+
+```bash
+# 환경변수 설정
+export OPENAI_API_KEY="your-key"
+export ANTHROPIC_API_KEY="your-key"
+
+# 서버 실행 (stdio 모드)
+npx @wnsgur1595/llm-provider-mcp
+
+# 또는 환경 체크만
+npx @wnsgur1595/llm-provider-mcp --env-check
+```
+
+### 5. Docker 컨테이너
+
+Docker를 사용한 격리된 환경에서 실행:
+
+```dockerfile
+FROM node:20-alpine
+
+# 패키지 설치
+RUN npm install -g @wnsgur1595/llm-provider-mcp
+
+# 환경변수 설정
+ENV OPENAI_API_KEY=""
+ENV ANTHROPIC_API_KEY=""
+
+# 서버 실행
+CMD ["llm-provider-mcp"]
+```
+
+```bash
+# Docker 실행
+docker run -e OPENAI_API_KEY="your-key" -e ANTHROPIC_API_KEY="your-key" your-image
+```
+
+### 6. 다른 AI 플랫폼과 통합
+
+- **Continue**: VS Code AI 코딩 어시스턴트
+- **Aider**: AI 페어 프로그래밍 도구
+- **기타 MCP 호환 도구들**
+
+> **💡 팁**: MCP Inspector는 새로운 클라이언트 개발이나 디버깅 시 매우 유용합니다. tools의 스키마와 응답을 실시간으로 확인할 수 있습니다.
+
+---
+
+## 🚀 상세 설치 가이드
 
 ### Option 1: Use with npx (Recommended)
 
@@ -32,7 +199,7 @@ No installation required! Just configure Claude Desktop to use:
   "mcpServers": {
     "llm-provider": {
       "command": "npx",
-      "args": ["llm-provider-mcp"],
+      "args": ["@wnsgur1595/llm-provider-mcp"],
       "env": { ... }
     }
   }
@@ -42,7 +209,7 @@ No installation required! Just configure Claude Desktop to use:
 ### Option 2: Install globally
 
 ```bash
-npm install -g llm-provider-mcp
+npm install -g @wnsgur1595/llm-provider-mcp
 ```
 
 ### Option 3: Build from Source
@@ -76,7 +243,7 @@ Configure directly in Claude Desktop config:
   "mcpServers": {
     "llm-provider": {
       "command": "npx",
-      "args": ["llm-provider-mcp"],
+      "args": ["@wnsgur1595/llm-provider-mcp"],
       "env": {
         "OPENAI_API_KEY": "sk-your-openai-key",
         "ANTHROPIC_API_KEY": "sk-ant-your-anthropic-key",
@@ -100,7 +267,7 @@ Configure directly in Claude Desktop config:
 {
   "mcpServers": {
     "llm-provider": {
-      "command": "llm-provider",
+      "command": "@wnsgur1595/llm-provider-mcp",
       "env": {
         "OPENAI_API_KEY": "sk-your-openai-key",
         "ANTHROPIC_API_KEY": "sk-ant-your-anthropic-key"
