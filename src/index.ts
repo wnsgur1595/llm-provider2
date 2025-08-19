@@ -5,7 +5,7 @@ import { logger } from "./utils/logger.js";
 
 async function main() {
   try {
-    logger.info("Starting LLM Provider MCP Server v2.0.0");
+    logger.info("Starting LLM Provider MCP Server v2.0.1");
     
     const server = createServer();
     const transport = new StdioServerTransport();
