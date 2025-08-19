@@ -35,8 +35,8 @@ function logEnvironmentStatus() {
 
 function isValidApiKey(key?: string): boolean {
   if (!key) return false;
-  // 유효한 API 키 패턴 확인
-  return key.startsWith('sk-') || key.startsWith('pplx-') || key.startsWith('gsk_') || key.startsWith('sk-ant-');
+  // API 키가 존재하고 비어있지 않으면 유효하다고 간주
+  return key.trim().length > 0;
 }
 
 const ConfigSchema = z.object({
